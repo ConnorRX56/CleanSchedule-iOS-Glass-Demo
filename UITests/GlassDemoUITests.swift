@@ -38,7 +38,9 @@ final class GlassDemoUITests: XCTestCase {
         let date = node("dateControl")
         XCTAssertTrue(date.waitForExistence(timeout: 4))
         date.tap()
-        XCTAssertTrue(node("datePanel").waitForExistence(timeout: 4))
+        let calendar = app.datePickers.firstMatch
+        if !calendar.waitForExistence(timeout: 6) { print(app.debugDescription) }
+        XCTAssertTrue(calendar.exists)
         // SwiftUI containers can propagate their identifier to children. The
         // visible, accessible close action is the user-facing contract here.
         let close = app.buttons["关闭"].firstMatch
@@ -48,8 +50,10 @@ final class GlassDemoUITests: XCTestCase {
         close.tap()
         XCTAssertTrue(date.waitForExistence(timeout: 4))
         let gone = NSPredicate(format: "exists == false")
-        expectation(for: gone, evaluatedWith: node("datePanel"))
-        waitForExpectations(timeout: 4)
+        expectation(for: gone, evaluatedWith: calendar)
+        let returned = NSPredicate { _, _ in date.isHittable && abs(date.frame.width - 52) < 1 }
+        expectation(for: returned, evaluatedWith: nil)
+        waitForExpectations(timeout: 6)
         XCTAssertEqual(week.value as? String, "W01")
     }
 }
