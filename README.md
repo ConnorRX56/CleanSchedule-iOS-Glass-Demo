@@ -2,6 +2,8 @@
 
 用于验证 iPhone 原生 Liquid Glass、交互和免费安装流程的小演示。使用 SwiftUI 系统字体、SF Symbols、GlassEffectContainer 和原生玻璃材质。
 
+当前交付为 0.1.0 build 4：iPhone 安装包已生成，9 项模拟器/逻辑测试通过；用户手机签名安装待完成。详见 [验证记录](VALIDATION.md)。
+
 最低系统 iOS 26；目标试用设备为 iOS 27。电脑没有 Mac 也可以通过标准 GitHub macOS runner 构建。本仓库不包含 Apple 账号、签名证书、个人课表或 Android 工程。
 
 ## 手机上可以做什么
