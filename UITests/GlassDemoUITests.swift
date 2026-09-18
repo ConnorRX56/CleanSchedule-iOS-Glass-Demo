@@ -39,7 +39,9 @@ final class GlassDemoUITests: XCTestCase {
         XCTAssertTrue(date.waitForExistence(timeout: 4))
         date.tap()
         XCTAssertTrue(node("datePanel").waitForExistence(timeout: 4))
-        let close = node("closePanel")
+        // SwiftUI containers can propagate their identifier to children. The
+        // visible, accessible close action is the user-facing contract here.
+        let close = app.buttons["关闭"].firstMatch
         if !close.waitForExistence(timeout: 4) { print(app.debugDescription) }
         XCTAssertTrue(close.exists)
         XCTAssertTrue(close.isHittable)

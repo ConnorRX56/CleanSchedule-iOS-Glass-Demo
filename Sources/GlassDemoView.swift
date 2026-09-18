@@ -307,6 +307,7 @@ private struct GlassTile: View, Animatable {
                 .layoutPriority(1)
             }
             .padding(20)
+            .accessibilityElement(children: .contain)
             .accessibilityIdentifier("datePanel")
         }
     }
