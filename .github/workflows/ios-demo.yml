@@ -1,0 +1,44 @@
+name: Build iPhone glass demo
+
+on:
+  workflow_dispatch:
+    inputs:
+      private_free_allowance_confirmed:
+        description: 'Private repo only: owner has verified enough free allowance and a zero spending cap'
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: iphone-glass-demo
+  cancel-in-progress: true
+
+jobs:
+  build:
+    # Do not schedule a potentially billable private runner by default.
+    if: ${{ !github.event.repository.private || inputs.private_free_allowance_confirmed }}
+    runs-on: macos-26
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Build unsigned device IPA and run simulator logic tests
+        run: bash tools/build.sh
+      - name: Save output as a draft release (no metered Actions artifact storage)
+        if: ${{ always() && !cancelled() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUILD_STATUS: ${{ job.status }}
+        shell: bash
+        run: |
+          mkdir -p dist
+          printf 'Build status: %s\n\n' "$BUILD_STATUS" > dist/BUILD_STATUS.txt
+          printf 'Unsigned iPhone demo. Local signing is required. No on-device installation or visual parity claim.\n' >> dist/BUILD_STATUS.txt
+          gh release create "demo-build-${GITHUB_RUN_NUMBER}" dist/* \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft \
+            --title "Glass Demo 0.1.0 - build ${GITHUB_RUN_NUMBER}" \
+            --notes-file dist/BUILD_STATUS.txt
