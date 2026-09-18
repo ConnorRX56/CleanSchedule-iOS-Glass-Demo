@@ -39,7 +39,7 @@ struct SampleTimetable: View {
                     }
                 }
                 HStack(spacing: 0) {
-                    Color.clear.frame(width: gutter)
+                    Color.clear.frame(width: gutter, height: 26)
                     ForEach(days, id: \.self) { day in
                         Text(day).font(.system(size: 10, weight: .medium)).foregroundStyle(.secondary)
                             .frame(width: dayWidth, height: 26)
