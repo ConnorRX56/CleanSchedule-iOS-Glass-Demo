@@ -41,7 +41,7 @@ enum GlassMotion {
         return rect(center: center, width: width, height: height)
     }
     static func panel(_ control: GlassControl, size: CGSize, top: CGFloat, bottom: CGFloat) -> CGRect {
-        let height: CGFloat = control == .date ? 450 : 364
+        let height: CGFloat = control == .date ? 520 : 364
         let visibleHeight = max(80, size.height - top - bottom - 32)
         return rect(center: CGPoint(x: size.width / 2, y: top + (size.height - top - bottom) / 2),
                     width: min(350, size.width - 32), height: min(height, visibleHeight))

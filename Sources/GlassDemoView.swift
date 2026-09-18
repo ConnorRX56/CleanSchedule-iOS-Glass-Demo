@@ -101,19 +101,28 @@ struct GlassDemoView: View {
                              progress: isActive ? panelProgress : 0,
                              selected: isActive, week: week, weekDirection: weekDirection, namespace: glassNamespace,
                              selectedDate: $selectedDate, onWeek: selectWeek, onClose: dismissPanel)
-            .allowsHitTesting(active == nil ? (control == .week || expansion > 0.94) : isActive && !closing)
             .zIndex(isActive ? 10 : control == .week ? 2 : 1)
-            .accessibilityElement(children: isActive ? .contain : .ignore)
-            .accessibilityIdentifier("\(control.rawValue)Control")
-            .accessibilityLabel(control == .week ? "教学周" : control == .date ? "开学日期" : "导入课表")
-            .accessibilityValue(control == .week ? "W\(String(format: "%02d", week))" : "")
-            .accessibilityAddTraits(isActive ? [] : .isButton)
-            .accessibilityAction { activate(control) }
-            .accessibilityAction(named: "展开操作") { withAnimation(spring) { expansion = 1 } }
-        if control == .week {
-            tile.gesture(weekGesture, including: active == nil ? .all : .none)
+        if isActive {
+            // An expanded panel is a container, not its old outer tap target.
+            // Keep the calendar's buttons as independent accessibility elements.
+            tile.allowsHitTesting(!closing)
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier("\(control.rawValue)Control")
         } else {
-            tile.onTapGesture { activate(control) }
+            let source = tile
+                .allowsHitTesting(active == nil && (control == .week || expansion > 0.94))
+                .accessibilityElement(children: .ignore)
+                .accessibilityIdentifier("\(control.rawValue)Control")
+                .accessibilityLabel(control == .week ? "教学周" : control == .date ? "开学日期" : "导入课表")
+                .accessibilityValue(control == .week ? "W\(String(format: "%02d", week))" : "")
+                .accessibilityAddTraits(.isButton)
+                .accessibilityAction { activate(control) }
+                .accessibilityAction(named: "展开操作") { withAnimation(spring) { expansion = 1 } }
+            if control == .week {
+                source.gesture(weekGesture)
+            } else {
+                source.onTapGesture { activate(control) }
+            }
         }
     }
 
@@ -280,15 +289,22 @@ private struct GlassTile: View, Animatable {
                     Spacer()
                     closeButton
                 }
-                DatePicker("开学日期", selection: $selectedDate, displayedComponents: .date)
-                    .datePickerStyle(.graphical)
-                    .labelsHidden()
+                .fixedSize(horizontal: false, vertical: true)
+                .layoutPriority(1)
+                ScrollView(showsIndicators: false) {
+                    DatePicker("开学日期", selection: $selectedDate, displayedComponents: .date)
+                        .datePickerStyle(.graphical)
+                        .labelsHidden()
+                }
+                .frame(maxHeight: .infinity)
                 Button(action: onClose) {
                     Image(systemName: "checkmark").font(.system(size: 17, weight: .semibold))
                         .frame(width: 44, height: 38)
                 }
                 .buttonStyle(.glassProminent)
                 .accessibilityLabel("确认日期")
+                .fixedSize()
+                .layoutPriority(1)
             }
             .padding(20)
             .accessibilityIdentifier("datePanel")

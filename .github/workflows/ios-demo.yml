@@ -26,8 +26,10 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
-      - name: Build unsigned device IPA and run simulator logic tests
-        run: bash tools/build.sh
+      - name: Compile the unsigned iPhone IPA
+        run: bash tools/build.sh build
+      - name: Run simulator logic tests
+        run: bash tools/build.sh test
       - name: Save output as a draft release (no metered Actions artifact storage)
         if: ${{ always() && !cancelled() }}
         env:

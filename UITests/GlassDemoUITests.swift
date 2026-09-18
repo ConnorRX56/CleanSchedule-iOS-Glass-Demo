@@ -39,8 +39,15 @@ final class GlassDemoUITests: XCTestCase {
         XCTAssertTrue(date.waitForExistence(timeout: 4))
         date.tap()
         XCTAssertTrue(node("datePanel").waitForExistence(timeout: 4))
-        node("closePanel").tap()
+        let close = node("closePanel")
+        if !close.waitForExistence(timeout: 4) { print(app.debugDescription) }
+        XCTAssertTrue(close.exists)
+        XCTAssertTrue(close.isHittable)
+        close.tap()
         XCTAssertTrue(date.waitForExistence(timeout: 4))
+        let gone = NSPredicate(format: "exists == false")
+        expectation(for: gone, evaluatedWith: node("datePanel"))
+        waitForExpectations(timeout: 4)
         XCTAssertEqual(week.value as? String, "W01")
     }
 }
